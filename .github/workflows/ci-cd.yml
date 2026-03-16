@@ -38,6 +38,17 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/flask-app:latest
 
   deploy:
+    name: Deploiement Kubernetes
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      - name: Configurer kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
       - name: Deployer sur Kubernetes
         run: |
           kubectl apply -f k8s/deployment.yaml --insecure-skip-tls-verify
