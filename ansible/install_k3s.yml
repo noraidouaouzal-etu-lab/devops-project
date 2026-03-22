@@ -1,4 +1,16 @@
 ---
+# 1. NEW: تنصيب Docker (ضروري حيت كاين فـ ورقة الأستاذ)
+- name: Configuration de base sur tous les serveurs
+  hosts: all
+  become: yes
+  tasks:
+    - name: Installer Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+# 2. إعداد الماستر
 - name: Installer k3s sur le Master
   hosts: master
   become: yes
@@ -14,12 +26,21 @@
         delay: 10
         timeout: 120
 
+    # NEW: إعداد الصلاحيات باش نخدمو بـ kubectl بلا sudo
+    - name: Configurer les permissions du Kubeconfig pour azureuser
+      shell: |
+        mkdir -p /home/azureuser/.kube
+        cp /etc/rancher/k3s/k3s.yaml /home/azureuser/.kube/config
+        chown azureuser:azureuser /home/azureuser/.kube/config
+        chmod 600 /home/azureuser/.kube/config
+
     - name: Recuperer le token
       fetch:
         src: /var/lib/rancher/k3s/server/node-token
         dest: /tmp/k3s-token
         flat: yes
 
+# 3. إعداد الوركر
 - name: Installer k3s sur le Worker
   hosts: workers
   become: yes
@@ -36,3 +57,15 @@
         K3S_TOKEN={{ k3s_token.content | b64decode | trim }} sh -
       args:
         creates: /usr/local/bin/k3s
+
+# 4. NEW: التحقق النهائي من حالة الكلاستر (للتقرير)
+- name: Verification du Cluster
+  hosts: master
+  tasks:
+    - name: Verifier que les nodes sont Ready
+      command: kubectl get nodes
+      register: nodes_output
+
+    - name: Afficher l'etat des nodes
+      debug:
+        msg: "{{ nodes_output.stdout_lines }}"
