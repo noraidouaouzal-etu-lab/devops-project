@@ -1,9 +1,12 @@
+# RÉSULTATS DU DÉPLOIEMENT (IPs PUBLIQUES)
+
+
 output "master_public_ip" {
-  description = "IP publique du master"
-  value       = azurerm_linux_virtual_machine.master.public_ip_address
+  description = "L'adresse IP publique du Node Master"
+  value       = azurerm_public_ip.pip_master.ip_address
 }
 
 output "worker_public_ip" {
-  description = "IP publique du worker"
-  value       = azurerm_linux_virtual_machine.worker.public_ip_address
+  description = "L'adresse IP publique du Node Worker"
+  value       = azurerm_public_ip.pip_worker.ip_address
 }
