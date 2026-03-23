@@ -8,7 +8,7 @@
 
 ## Livrables
 - [Rapport PDF](rapport.pdf)
-- [Presentation PPT](presentation devops.pptx)
+- [Presentation PPT](presentation%20devops.pptx)
 
 ## Architecture
 Code → GitHub Actions → Docker Hub → Kubernetes (Azure)
